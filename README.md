@@ -121,6 +121,26 @@ Use this option if Minify for Laravel makes your javascript or css not working p
 ```
 Caution: this option is experimental. If the code still not working properly, you can disable this option and add semicolon manually to your Javascript or CSS code.
 
+### Skip LD+JSON Script Minification
+You can configure Minify for Laravel to automatically skip minification of `<script type="application/ld+json">` tags by setting `skip_ld_json` to `true` in the `config/minify.php` file. This is enabled by default to preserve structured data for SEO purposes. For example:
+
+```php
+"skip_ld_json" => env("MINIFY_SKIP_LD_JSON", true),
+```
+
+When enabled, scripts like this will not be minified:
+
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "My Company",
+  "url": "https://example.com"
+}
+</script>
+```
+
 ### Skip Minify on Blade
 You can skip minify on blade by using attribute `ignore--minify` inside script or style tag. For example:
 

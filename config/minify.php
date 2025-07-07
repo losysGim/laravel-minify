@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Laravel Minify.
  *
@@ -118,6 +119,20 @@ return [
     |
     */
     'obfuscate' => env('MINIFY_OBFUSCATE', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Skip LD+JSON Script Minification
+    |--------------------------------------------------------------------------
+    |
+    | This option will skip minification of <script type="application/ld+json">
+    | tags. LD+JSON scripts contain structured data that should remain readable
+    | and unminified for SEO purposes.
+    |
+    | Default: true
+    |
+    */
+    'skip_ld_json' => env('MINIFY_SKIP_LD_JSON', true),
 
     /*
     |--------------------------------------------------------------------------
