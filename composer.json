@@ -1,5 +1,5 @@
 {
-  "name": "fahlisaputra/laravel-minify",
+  "name": "losysgim/laravel-minify",
   "description": "Minify your blade views, html, css and obfuscate js files on the fly. Lightweight minifier for your Laravel project.",
   "keywords": [
     "laravel",
