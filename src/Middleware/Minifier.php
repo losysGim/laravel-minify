@@ -47,7 +47,11 @@ abstract class Minifier
 
         $this->loadDom($html);
 
-        return $response->setContent($this->apply());
+        return
+            $response->setContent(
+                html_entity_decode(
+                    $this->apply(),
+                    ENT_QUOTES | ENT_HTML5, 'UTF-8'));
     }
 
     protected function replaceDirectives($html): string
@@ -171,7 +175,9 @@ abstract class Minifier
         }
 
         static::$dom = new DOMDocument();
-        @static::$dom->loadHTML($html, LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE);
+        @static::$dom->loadHTML(
+            mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+            LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE);
     }
 
     protected function getByTag(string $tags): array
