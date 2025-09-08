@@ -177,7 +177,7 @@ abstract class Minifier
         static::$dom = new DOMDocument();
         @static::$dom->loadHTML(
             mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
-            LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE);
+            LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE | LIBXML_HTML_NOIMPLIED);
     }
 
     protected function getByTag(string $tags): array
