@@ -47,11 +47,7 @@ abstract class Minifier
 
         $this->loadDom($html);
 
-        return
-            $response->setContent(
-                html_entity_decode(
-                    $this->apply(),
-                    ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        return $response->setContent($this->apply());
     }
 
     protected function replaceDirectives($html): string

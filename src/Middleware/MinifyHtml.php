@@ -12,7 +12,7 @@ class MinifyHtml extends Minifier
         $ignoredJs = $this->getByTagOnlyIgnored('script');
 
         if (static::$minifyCssHasBeenUsed && static::$minifyJavascriptHasBeenUsed) {
-            $html = $this->replace(static::$dom->saveHtml());
+            $html = $this->replace(static::$dom->saveHtml(static::$dom->documentElement));
 
             if (empty($ignoredCss) || empty($ignoredCss)) {
                 return $html;
@@ -28,7 +28,7 @@ class MinifyHtml extends Minifier
                 $js = $this->getByTag('script');
             }
 
-            $html = $this->replace(static::$dom->saveHtml());
+            $html = $this->replace(static::$dom->saveHtml(static::$dom->documentElement));
 
             $this->loadDom($html, true);
 
@@ -47,7 +47,7 @@ class MinifyHtml extends Minifier
             $this->append('getByTagOnlyIgnored', 'script', $ignoredJs);
         }
 
-        return trim(static::$dom->saveHtml());
+        return trim(static::$dom->saveHtml(static::$dom->documentElement));
     }
 
     protected function append(string $function, string $tags, array $backup)
