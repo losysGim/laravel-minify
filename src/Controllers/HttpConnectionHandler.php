@@ -31,7 +31,10 @@ class HttpConnectionHandler
         }
 
         return response($content, 200, [
-            'Content-Type' => $mime . '; charset=UTF-8',
+            'Content-Type'      => $mime . '; charset=UTF-8',
+            'Content-Length'    => strlen($content),
+            'Etag'              => md5($content),
+            'Cache-Control'     => 'public, max-age=31536000'
         ]);
     }
 }
