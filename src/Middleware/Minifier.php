@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 abstract class Minifier
 {
     protected static $dom;
+    protected static ?string $domDocType = null;
     protected static $minifyCssHasBeenUsed = false;
     protected static $minifyJavascriptHasBeenUsed = false;
 
@@ -161,6 +162,14 @@ abstract class Minifier
         return $matches;
     }
 
+    protected function extractDocType(string $fromHtml): ?string
+    {
+        // this can only(!) parse very simple DOCTYPE-tags!
+        if (preg_match('/^<!DOCTYPE.+?>/', $fromHtml, $match))
+            return $match[0];
+        return null;
+    }
+
     protected function loadDom(string $html, bool $force = false)
     {
         if (static::$dom instanceof DOMDocument) {
@@ -170,6 +179,7 @@ abstract class Minifier
             }
         }
 
+        static::$domDocType = $this->extractDocType($html);
         static::$dom = new DOMDocument();
         @static::$dom->loadHTML(
             mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),

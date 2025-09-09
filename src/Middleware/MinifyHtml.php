@@ -2,42 +2,42 @@
 
 namespace Fahlisaputra\Minify\Middleware;
 
+use Fahlisaputra\Minify\Helpers\CSS;
+use Fahlisaputra\Minify\Helpers\Javascript;
+
 class MinifyHtml extends Minifier
 {
     protected const REGEX_REMOVE_COMMENT = "#\s*<!--(?!\[if\s).*?-->\s*|(?<!\>)\n+(?=\<[^!])#s";
+
+    protected function getDomHtml(): string
+    {
+        return
+            (static::$domDocType ?? '') .
+            static::$dom->saveHtml(static::$dom->documentElement);
+    }
 
     protected function apply()
     {
         $ignoredCss = $this->getByTagOnlyIgnored('style');
         $ignoredJs = $this->getByTagOnlyIgnored('script');
 
-        if (static::$minifyCssHasBeenUsed && static::$minifyJavascriptHasBeenUsed) {
-            $html = $this->replace(static::$dom->saveHtml(static::$dom->documentElement));
+        if (!static::$minifyCssHasBeenUsed)
+            $css = $this->getByTag('style');
 
-            if (empty($ignoredCss) && empty($ignoredJs)) {
-                return $html;
-            }
+        if (!static::$minifyJavascriptHasBeenUsed)
+            $js = $this->getByTag('script');
 
-            $this->loadDom($html, true);
-        } else {
-            if (!static::$minifyCssHasBeenUsed) {
-                $css = $this->getByTag('style');
-            }
+        $this->loadDom(
+            $this->replace(
+                $this->getDomHtml()
+            ),
+            true);
 
-            if (!static::$minifyJavascriptHasBeenUsed) {
-                $js = $this->getByTag('script');
-            }
-
-            $html = $this->replace(static::$dom->saveHtml(static::$dom->documentElement));
-
-            $this->loadDom($html, true);
-
-            if (isset($css)) {
-                $this->append('getByTag', 'style', $css);
-            }
-            if (isset($js)) {
-                $this->append('getByTag', 'script', $js);
-            }
+        if (isset($css)) {
+            $this->append('getByTag', 'style', $this->minifyCssNodes($css));
+        }
+        if (isset($js)) {
+            $this->append('getByTag', 'script', $this->minifyJsNodes($js));
         }
 
         if (!empty($ignoredCss)) {
@@ -47,7 +47,48 @@ class MinifyHtml extends Minifier
             $this->append('getByTagOnlyIgnored', 'script', $ignoredJs);
         }
 
-        return trim(static::$dom->saveHtml(static::$dom->documentElement));
+        return trim($this->getDomHtml());
+    }
+
+    protected function minifyCssNodes(array $cssNodes): array
+    {
+        $css = new CSS();
+        $allowInsertSemicolon = (bool) config('minify.insert_semicolon.css', false);
+
+        return
+            array_map(
+                fn($node) => $css->replace($node->nodeValue, $allowInsertSemicolon),
+                $cssNodes
+            );
+    }
+
+    protected function isLdJsonScript($el): bool
+    {
+        return $el->hasAttribute('type') &&
+            strtolower($el->getAttribute('type')) === 'application/ld+json';
+    }
+
+    protected function minifyJsNodes(array $jsNodes): array
+    {
+        $javascript = new Javascript();
+        $allowInsertSemicolon = (bool) config('minify.insert_semicolon.js', false);
+        $obfuscate = (bool) config('minify.obfuscate', false);
+        $skipLdJson = (bool) config('minify.skip_ld_json', true);
+
+        return
+            array_map(
+                function ($node) use ($javascript, $allowInsertSemicolon, $obfuscate, $skipLdJson) {
+                    if ($skipLdJson && $this->isLdJsonScript($node))
+                        return $node;
+
+                    $value = $javascript->replace($node->nodeValue, $allowInsertSemicolon);
+                    if ($obfuscate)
+                        $value = $javascript->obfuscate($value);
+
+                    return $value;
+                },
+                $jsNodes
+            );
     }
 
     protected function append(string $function, string $tags, array $backup)
@@ -55,7 +96,7 @@ class MinifyHtml extends Minifier
         $index = 0;
         foreach ($this->{$function}($tags) as $el) {
             $el->nodeValue = '';
-            $el->appendChild(static::$dom->createTextNode($backup[$index]->nodeValue));
+            $el->appendChild(static::$dom->createTextNode(is_string($backup[$index]) ? $backup[$index] : $backup[$index]->nodeValue));
             $index++;
         }
     }
