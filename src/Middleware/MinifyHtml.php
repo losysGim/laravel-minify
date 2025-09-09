@@ -14,7 +14,7 @@ class MinifyHtml extends Minifier
         if (static::$minifyCssHasBeenUsed && static::$minifyJavascriptHasBeenUsed) {
             $html = $this->replace(static::$dom->saveHtml(static::$dom->documentElement));
 
-            if (empty($ignoredCss) || empty($ignoredCss)) {
+            if (empty($ignoredCss) && empty($ignoredJs)) {
                 return $html;
             }
 
