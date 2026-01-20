@@ -182,7 +182,7 @@ abstract class Minifier
         static::$domDocType = $this->extractDocType($html);
         static::$dom = new DOMDocument();
         @static::$dom->loadHTML(
-            mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+            $html, //mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), <- this breaks embedded JavaScript with Umlauts
             LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE | LIBXML_HTML_NOIMPLIED);
     }
 
