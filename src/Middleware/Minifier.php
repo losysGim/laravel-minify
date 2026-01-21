@@ -20,7 +20,7 @@ abstract class Minifier
     protected static $isEnable;
     protected static $ignore;
 
-    protected const REGEX_VALID_HTML = "/<html[^>]*>.*<head[^>]*>.*<\/head[^>]*>.*<body[^>]*>.*<\/body[^>]*>.*<\/html[^>]*>/is";
+    protected const REGEX_VALID_HTML = "/(<!DOCTYPE[^>]*>)?[\s\S]*<html[^>]*>[\s\S]*<head[^>]*>[\s\S]*<\/head[^>]*>[\s\S]*<body[^>]*>[\s\S]*<\/body[^>]*>[\s\S]*<\/html[^>]*>/ius";
 
     abstract protected function apply();
 
@@ -173,16 +173,19 @@ abstract class Minifier
     protected function loadDom(string $html, bool $force = false)
     {
         if (static::$dom instanceof DOMDocument) {
-            if ($force) {
-            } else {
+            if (!$force)
                 return;
-            }
         }
 
         static::$domDocType = $this->extractDocType($html);
         static::$dom = new DOMDocument();
         @static::$dom->loadHTML(
-            $html, //mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), <- this breaks embedded JavaScript with Umlauts
+            /**
+             * mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), >- deprecated in PHP 8.2+
+             *
+             * @see https://stackoverflow.com/questions/8218230/php-domdocument-loadhtml-not-encoding-utf-8-correctly
+             */
+            mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'),
             LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE | LIBXML_HTML_NOIMPLIED);
     }
 
