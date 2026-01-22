@@ -185,7 +185,7 @@ abstract class Minifier
              *
              * @see https://stackoverflow.com/questions/8218230/php-domdocument-loadhtml-not-encoding-utf-8-correctly
              */
-            mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'),
+            mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8') ?: '&nbsp;',
             LIBXML_HTML_NODEFDTD | LIBXML_SCHEMA_CREATE | LIBXML_HTML_NOIMPLIED);
     }
 
