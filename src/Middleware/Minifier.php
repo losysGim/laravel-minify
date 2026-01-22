@@ -20,7 +20,7 @@ abstract class Minifier
     protected static $isEnable;
     protected static $ignore;
 
-    protected const REGEX_VALID_HTML = "/(<!DOCTYPE[^>]*>)?[\s\S]*<html[^>]*>[\s\S]*<head[^>]*>[\s\S]*<\/head[^>]*>[\s\S]*<body[^>]*>[\s\S]*<\/body[^>]*>[\s\S]*<\/html[^>]*>/ius";
+    protected const REGEX_VALID_HTML = "/^[\s\r\n\t]*(<!DOCTYPE[^>]*>)?[\s\r\n\t]*<html[^>]*>[\s\S]*<head[^>]*>[\s\S]*<\/head[^>]*>[\s\S]*<body[^>]*>[\s\S]*<\/body[^>]*>[\s\S]*<\/html[^>]*>/ius";
 
     abstract protected function apply();
 
